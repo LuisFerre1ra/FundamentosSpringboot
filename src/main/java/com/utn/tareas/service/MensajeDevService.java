@@ -8,11 +8,15 @@ import org.springframework.stereotype.Service;
 public class MensajeDevService implements MensajeService {
     @Override
     public void mostrarBienvenida() {
-        System.out.println("Sistema iniciado en modo DEV.");
+        System.out.println("====================================");
+        System.out.println("    Sistema iniciado en modo DEV.   ");
+        System.out.println("====================================");
     }
 
     @Override
     public void mostrarDespedida() {
-        System.out.println("Ejecución finalizada del modo DEV.");
+        System.out.println("====================================");
+        System.out.println(" Ejecución finalizada del modo DEV. ");
+        System.out.println("====================================");
     }
 }
