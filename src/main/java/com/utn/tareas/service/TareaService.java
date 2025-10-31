@@ -4,6 +4,7 @@ import com.utn.tareas.model.Prioridad;
 import com.utn.tareas.model.Tarea;
 import com.utn.tareas.repository.TareaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,7 +13,15 @@ import java.util.stream.Collectors;
 
 @Service
 public class TareaService {
+
     private final TareaRepository repository;
+
+    @Value("${app.nombre}")
+    private String nombreApp;
+    @Value("${app.max-tareas}")
+    private int maxTareas;
+    @Value("${app.mostrar-estadisticas}")
+    private boolean mostrarEstadisticas;
 
     @Autowired
     public TareaService(TareaRepository repository) {
@@ -20,6 +29,12 @@ public class TareaService {
     }
 
     public void agregarTarea(String descripcion, Prioridad prioridad) {
+        if (repository.getTareas().size() >= maxTareas) {
+            throw new IllegalStateException(
+                String.format("No se pueden agregar más de %d tareas", maxTareas)
+            );
+        }
+
         Tarea tarea = Tarea.builder()
                 .descripcion(descripcion)
                 .prioridad(prioridad)
@@ -55,11 +70,22 @@ public class TareaService {
     }
 
     public String obtenerEstadisticas() {
+        if (!mostrarEstadisticas) {
+            return "Las estadísticas están deshabilitadas.";
+        }
+
         List<Tarea> tareas = repository.getTareas();
         long total = tareas.size();
         long completadas = tareas.stream().filter(Tarea::isCompletada).count();
         long pendientes = total - completadas;
 
         return String.format("Total: %d | Completadas: %d | Pendientes: %d", total, completadas, pendientes);
+    }
+
+    public void imprimirConfiguracion() {
+        System.out.println("=== Configuración actual ===");
+        System.out.println("Nombre de la aplicación: " + nombreApp);
+        System.out.println("Máximo de tareas: " + maxTareas);
+        System.out.println("Mostrar estadísticas: " + mostrarEstadisticas);
     }
 }
